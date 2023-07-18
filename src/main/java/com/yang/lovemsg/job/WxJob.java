@@ -20,7 +20,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.LocalDate;
 import java.util.Date;
-import java.util.Random;
 
 @Configuration
 @EnableScheduling
@@ -44,16 +43,7 @@ public class WxJob {
     private Environment application;
 
     @Scheduled(cron = "*/5 * * * * ?")
-//    @Scheduled(cron = "0 0 7 * * ?")
     public void sendMsg() throws InterruptedException {
-        //随机7点到23点
-//        int number = 16 * 60 * 60;
-//        // 创建一个 Random 对象
-//        Random rand = new Random();
-//        // 生成随机整数
-//        int num = rand.nextInt(number);
-//        logger.info("----倒计时:"+num+"s");
-//        Thread.sleep(num * 1000);
         sendMessage();
     }
 
