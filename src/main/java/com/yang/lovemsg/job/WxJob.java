@@ -3,20 +3,12 @@ package com.yang.lovemsg.job;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.yang.lovemsg.Enum.SdEnum;
-import com.yang.lovemsg.feign.RandomPicFeignApi;
-import com.yang.lovemsg.feign.SdFeignApi;
-import com.yang.lovemsg.feign.WeatherFeignApi;
-import com.yang.lovemsg.feign.WxFeignApi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -24,45 +16,32 @@ import java.util.Date;
 @Configuration
 @EnableScheduling
 public class WxJob {
+    private static final String appId = "wx6f10e6aedd9c678c";
+    private static final String appSecret ="8764b26880f954d93e5b3a4eb9f78d70";
+    private static final String templateId ="u2DtVe_NSUVcqLhq9dpBzy2EK9pCPFDef69ZNNUZWqE";
+    private static final String gdKey="00628ece940f91c42e7a6e8c6a14bc84";
+    private static final String gdCity="420302";
+    private static final String  picUrl="https://api.likepoems.com/img/pe";
 
-    private static final Logger logger = LoggerFactory.getLogger(WxJob.class);
-
-    @Autowired
-    private WxFeignApi wxFeignApi;
-
-    @Autowired
-    private WeatherFeignApi weatherFeignApi;
-
-    @Autowired
-    private SdFeignApi sdFeignApi;
-
-    @Autowired
-    private RandomPicFeignApi randomPicFeignApi;
-
-    @Autowired
-    private Environment application;
-
-    @Scheduled(cron = "*/5 * * * * ?")
-    public void sendMsg() throws InterruptedException {
-        sendMessage();
-    }
 
     public void sendMessage(){
         //获取token
-        JSONObject json = wxFeignApi.getToken(application.getProperty("wx.appId"), application.getProperty("wx.appsecret"));
-        String token = json.get("access_token").toString();
+        String tokenResult =HttpUtil.get("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="+appId+"&secret="+appSecret);
+        JSONObject tokenJson =JSONObject.parseObject(tokenResult);
+        String token = tokenJson.get("access_token").toString();
         //获取关注用户
-        JSONObject userJson = wxFeignApi.getUser(token);
+        String userResult =HttpUtil.get("https://api.weixin.qq.com/cgi-bin/user/get?access_token="+token);
+        JSONObject userJson =JSONObject.parseObject(userResult);
         JSONArray openidArray = userJson.getJSONObject("data").getJSONArray("openid");
         for (int i = 0; i < openidArray.size(); i++) {
             String openid = openidArray.get(i).toString();
             JSONObject msg = new JSONObject();
             msg.put("touser", openid);
-            msg.put("template_id", application.getProperty("wx.templateId"));
-            msg.put("url", application.getProperty("wx.picUrl"));
+            msg.put("template_id", templateId);
+            msg.put("url", picUrl);
             msg.put("data", assembly());
-            JSONObject resp = wxFeignApi.sendMsg(msg, token);
-            logger.info("----发送结果：" + resp);
+            String sendResult =HttpUtil.post("https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="+token,msg.toString());
+            System.out.println("----发送结果："+sendResult);
         }
     }
 
@@ -119,7 +98,7 @@ public class WxJob {
         }
 
         //每日一言
-        JSONObject sd = sdFeignApi.getSd(sdType);
+        JSONObject sd = JSONObject.parseObject(HttpUtil.get("https://api.shadiao.pro/" + sdType));
         String text = sd.getJSONObject("data").get("text").toString().replaceAll("\\s*|\r|\n|\t", "");
         StringBuilder builder = new StringBuilder();
         int length = text.length();
@@ -170,9 +149,7 @@ public class WxJob {
     //获取天气信息
     public JSONObject getWeather() {
         //茅箭区
-        String city = application.getProperty("dg.city");
-        String key = application.getProperty("dg.key");
-        JSONObject jsonObject = weatherFeignApi.getWeather(key, city);
+        JSONObject jsonObject = JSONObject.parseObject(HttpUtil.get("https://restapi.amap.com/v3/weather/weatherInfo?key="+gdKey+"&city="+gdCity));
         JSONObject lives = jsonObject.getJSONArray("lives").getJSONObject(0);
         //重新组装
         JSONObject info = new JSONObject();
