@@ -7,14 +7,9 @@ import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.yang.lovemsg.Enum.SdEnum;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableScheduling;
-
 import java.time.LocalDate;
 import java.util.Date;
 
-@Configuration
-@EnableScheduling
 public class WxJob {
     private static final String appId = "wx6f10e6aedd9c678c";
     private static final String appSecret ="8764b26880f954d93e5b3a4eb9f78d70";
