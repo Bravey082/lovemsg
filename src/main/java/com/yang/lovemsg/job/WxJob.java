@@ -167,8 +167,7 @@ public class WxJob {
             thisYearBirthday = thisYearBirthday.plusYears(1);
         }
         LocalDate today = LocalDate.now();
-        long days = Math.abs(thisYearBirthday.toEpochDay() - today.toEpochDay());
-        return days;
+        return Math.abs(thisYearBirthday.toEpochDay() - today.toEpochDay());
     }
 
 }
