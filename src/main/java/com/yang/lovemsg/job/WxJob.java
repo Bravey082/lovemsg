@@ -96,6 +96,7 @@ public class WxJob {
         //每日一言
         JSONObject sd = JSONObject.parseObject(HttpUtil.get("https://api.shadiao.pro/" + sdType));
         String text = sd.getJSONObject("data").get("text").toString().replaceAll("\\s*|\r|\n|\t", "");
+        System.out.println("----" + text);
         StringBuilder builder = new StringBuilder();
         int length = text.length();
         for (int i = 0; i < length; i += 18) {
