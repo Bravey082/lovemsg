@@ -29,8 +29,8 @@ public class WxJob {
         String userResult = HttpUtil.get("https://api.weixin.qq.com/cgi-bin/user/get?access_token=" + token);
         JSONObject userJson = JSONObject.parseObject(userResult);
         JSONArray openidArray = userJson.getJSONObject("data").getJSONArray("openid");
-        for (int i = 0; i < openidArray.size(); i++) {
-            String openid = openidArray.get(i).toString();
+        for (Object o : openidArray) {
+            String openid = o.toString();
             JSONObject msg = new JSONObject();
             msg.put("touser", openid);
             msg.put("template_id", templateId);
