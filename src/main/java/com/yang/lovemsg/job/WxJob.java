@@ -28,7 +28,7 @@ public class WxJob {
         //获取关注用户
         String userResult = HttpUtil.get("https://api.weixin.qq.com/cgi-bin/user/get?access_token=" + token);
         JSONObject userJson = JSONObject.parseObject(userResult);
-        if(!"0".equals(userJson.get("total").toString())){
+        if (!"0".equals(userJson.get("total").toString())) {
             JSONArray openidArray = userJson.getJSONObject("data").getJSONArray("openid");
             for (Object o : openidArray) {
                 String openid = o.toString();
@@ -40,7 +40,7 @@ public class WxJob {
                 String sendResult = HttpUtil.post("https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=" + token, msg.toString());
                 System.out.println("----发送结果：" + sendResult);
             }
-        }else {
+        } else {
             System.out.println("----关注用户：" + userJson.get("total").toString());
         }
     }
