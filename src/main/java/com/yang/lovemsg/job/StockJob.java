@@ -44,7 +44,7 @@ public class StockJob {
         String priceNow = res[3];
         double percent = Double.parseDouble(res[32]);
         //当前
-        System.out.print(priceNow + "  " + percent);
+        System.out.print(priceNow + "  " + res[32]);
 
         // 设置时间段
         LocalTime startTime1 = LocalTime.of(9, 30);
@@ -61,7 +61,7 @@ public class StockJob {
         } else if (isTimeInRange(startTime2, endTime2, now)) {
             sengMail(priceNow, percent);
         } else {
-            System.out.println("  Not within trading hours - " + now);
+            System.out.println("    Not within trading hours -    " + now);
         }
 
     }
@@ -85,7 +85,9 @@ public class StockJob {
             message.setText(priceNow + "  " + percent);
             javaMailSender.send(message);
             time1 = LocalDateTime.now();
-            System.out.println("SendTine " + DateUtil.format(time1, "yyyy-MM-dd HH:mm:ss"));
+            System.out.println("    SendTime    " + DateUtil.format(time1, "yyyy-MM-dd HH:mm:ss"));
+        }else {
+            System.out.println("    Waiting     " + DateUtil.format(LocalDateTime.now(), "yyyy-MM-dd HH:mm:ss"));
         }
     }
 }
