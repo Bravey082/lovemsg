@@ -19,7 +19,8 @@ import java.time.LocalTime;
 @EnableScheduling
 public class StockJob {
 
-    private static final String stockCode = "sh000001";
+    private static final String stockCode = "sh000001,sh510050";
+
     private static final String url = "http://qt.gtimg.cn/q=";
 
     LocalDateTime time1 = LocalDateTime.now();
@@ -40,11 +41,24 @@ public class StockJob {
     @Scheduled(cron = "*/5 * * * * ?")
     public void getStock() {
         String result = HttpUtil.get(url + stockCode);
+        String[] stockArr = result.split(";");
+        for(int i = 0; i < stockArr.length-1; i++) {
+            stcokAnalysis(stockArr[i]);
+        }
+        System.out.println();
+    }
+
+    private static boolean isTimeInRange(LocalTime startTime, LocalTime endTime, LocalTime time) {
+        // 判断待判断的时间是否在时间段内
+        return !time.isBefore(startTime) && !time.isAfter(endTime);
+    }
+
+    public void stcokAnalysis (String result){
         String[] res = result.split("~");
         String priceNow = res[3];
         double percent = Double.parseDouble(res[32]);
         //当前
-        System.out.print(priceNow + "  " + res[32]);
+       System.out.print(priceNow + "  " + res[32]);
 
         // 设置时间段
         LocalTime startTime1 = LocalTime.of(9, 30);
@@ -63,13 +77,8 @@ public class StockJob {
         } else {
             System.out.println("    Not within trading hours -    " + now);
         }
-
     }
 
-    private static boolean isTimeInRange(LocalTime startTime, LocalTime endTime, LocalTime time) {
-        // 判断待判断的时间是否在时间段内
-        return !time.isBefore(startTime) && !time.isAfter(endTime);
-    }
 
     public void sengMail(String priceNow, double percent) {
         if (Math.abs(percent) > 0.5 && Duration.between(time1, LocalDateTime.now()).toMinutes() > 5) {
@@ -82,12 +91,12 @@ public class StockJob {
             // 设置邮件接收者，可以有多个接收者，多个接受者参数需要数组形式
             message.setTo(receivers);
             message.setSentDate(new Date());
-            message.setText(priceNow + "  " + percent);
+            message.setText(String.valueOf(percent));
             javaMailSender.send(message);
             time1 = LocalDateTime.now();
             System.out.println("    SendTime    " + DateUtil.format(time1, "yyyy-MM-dd HH:mm:ss"));
-        }else {
-            System.out.println("    Waiting     " + DateUtil.format(LocalDateTime.now(), "yyyy-MM-dd HH:mm:ss"));
+        } else {
+            System.out.print("   |   ");
         }
     }
 }
