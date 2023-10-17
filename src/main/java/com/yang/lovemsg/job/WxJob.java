@@ -38,6 +38,7 @@ public class WxJob {
                 msg.put("url", picUrl);
                 msg.put("data", assembly());
                 String sendResult = HttpUtil.post("https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=" + token, msg.toString());
+                System.out.println("----发送内容：" + msg);
                 System.out.println("----发送结果：" + sendResult);
             }
         } else {
